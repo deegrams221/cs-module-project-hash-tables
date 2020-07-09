@@ -2,6 +2,7 @@ class HashTableEntry:
     """
     Linked List hash table key/value pair
     """
+
     def __init__(self, key, value):
         self.key = key
         self.value = value
@@ -21,7 +22,10 @@ class HashTable:
     """
 
     def __init__(self, capacity):
-        # Your code here
+        self.capacity = capacity  # Number of buckets in the hash table
+        # Init the storage with empty capacity buckets
+        self.storage = [None] * capacity
+        self.item_count = 0
 
 
     def get_num_slots(self):
@@ -34,7 +38,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        return len(self.storage)
 
 
     def get_load_factor(self):
@@ -53,7 +57,22 @@ class HashTable:
         Implement this, and/or DJB2.
         """
 
-        # Your code here
+        # FNV parameters Hexadecimal 64 Bit
+        # https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
+        FNV_prime = 0x00000100000001B3
+        FNV_offset = 0xcbf29ce484222325
+
+        # make sure the key is a string and encode it into bytes
+        s_key = str(key).encode()
+
+        hash = FNV_offset
+
+        for bit in s_key:
+            hash *= FNV_prime
+            hash ^= bit
+            hash &= 0xffffffffffffffff  # 64-bit hash
+
+        return hash
 
 
     def djb2(self, key):
@@ -62,7 +81,19 @@ class HashTable:
 
         Implement this, and/or FNV-1.
         """
-        # Your code here
+        # Cast the key to a string and get bytes
+        s_key = str(key).encode()
+
+        # Start from a random large prime num
+        hash_val = 10333
+
+        # Bit-shift and sum val for each char
+        for bit in s_key:
+            # '<<' means Bitwise Left Shift
+            hash_val = ((hash_val << 5) + hash_val) + bit
+            hash_val &= 0xffffffff  # 32-bit hash
+
+        return hash_val
 
 
     def hash_index(self, key):
@@ -70,8 +101,9 @@ class HashTable:
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
+        return self.fnv1(key) % self.capacity
+        # return self.djb2(key) % self.capacity
+
 
     def put(self, key, value):
         """
@@ -81,7 +113,8 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        index = self.hash_index(key)
+        self.storage[index] = HashTableEntry(key, value)
 
 
     def delete(self, key):
@@ -92,7 +125,12 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        index = self.hash_index(key)
+
+        if (self.storage[index].key == key):
+            self.storage[index] = None
+        else:
+            print("Key not found!")
 
 
     def get(self, key):
@@ -103,7 +141,12 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        index = self.hash_index(key)
+
+        if (self.storage[index] and self.storage[index].key == key):
+            return self.storage[index].value
+        else:
+            return None
 
 
     def resize(self, new_capacity):
@@ -114,7 +157,6 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
 
 
 if __name__ == "__main__":
