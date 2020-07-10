@@ -85,7 +85,7 @@ class HashTable:
         s_key = str(key).encode()
 
         # Start from a random large prime num
-        hash_val = 10333
+        hash_val = 5381
 
         # Bit-shift and sum val for each char
         for bit in s_key:
