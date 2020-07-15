@@ -27,7 +27,6 @@ class HashTable:
         self.storage = [None] * capacity
         self.item_count = 0
 
-
     def get_num_slots(self):
         """
         Return the length of the list you're using to hold the hash
@@ -40,15 +39,13 @@ class HashTable:
         """
         return len(self.storage)
 
-
     def get_load_factor(self):
         """
         Return the load factor for this hash table.
 
         Implement this.
         """
-        # Your code here
-
+        return self.item_count / self.capacity
 
     def fnv1(self, key):
         """
@@ -74,7 +71,6 @@ class HashTable:
 
         return hash
 
-
     def djb2(self, key):
         """
         DJB2 hash, 32-bit
@@ -95,15 +91,13 @@ class HashTable:
 
         return hash_val
 
-
     def hash_index(self, key):
         """
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        return self.fnv1(key) % self.capacity
-        # return self.djb2(key) % self.capacity
-
+        # return self.fnv1(key) % self.capacity
+        return self.djb2(key) % self.capacity
 
     def put(self, key, value):
         """
@@ -114,8 +108,21 @@ class HashTable:
         Implement this.
         """
         index = self.hash_index(key)
-        self.storage[index] = HashTableEntry(key, value)
+        cur_entry = self.storage[index]
 
+        while cur_entry is not None and cur_entry != key:
+            cur_entry = cur_entry.next
+
+        if cur_entry is not None:
+            cur_entry.value = value
+        else:
+            new_entry = HashTableEntry(key, value)
+            new_entry.next = self.storage[index]
+            self.storage[index] = new_entry
+
+            self.item_count += 1
+            if self.get_load_factor() > 0.7:
+                self.resize(self.capacity * 2)
 
     def delete(self, key):
         """
@@ -127,11 +134,30 @@ class HashTable:
         """
         index = self.hash_index(key)
 
-        if (self.storage[index].key == key):
-            self.storage[index] = None
-        else:
-            print("Key not found!")
+        current_entry = self.storage[index]
+        last_entry = None
 
+        while current_entry is not None and current_entry.key != key:
+            last_entry = current_entry
+            current_entry = last_entry.next
+
+        if current_entry is None:
+            print("ERROR: Unable to remove entry with key " + key)
+        else:
+            if last_entry is None:  # Removing the first element in the LL
+                self.storage[index] = current_entry.next
+            else:
+                last_entry.next = current_entry.next
+
+            # Auto resize if load factor too low
+            self.item_count -= 1
+            if self.get_load_factor() < 0.2:
+                if self.capacity > MIN_CAPACITY:
+                    new_capacity = self.capacity // 2
+                    if new_capacity < MIN_CAPACITY:
+                        new_capacity = MIN_CAPACITY
+
+                    self.resize(new_capacity)
 
     def get(self, key):
         """
@@ -148,7 +174,6 @@ class HashTable:
         else:
             return None
 
-
     def resize(self, new_capacity):
         """
         Changes the capacity of the hash table and
@@ -156,7 +181,20 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        old_storage = self.storage
+        self.capacity = new_capacity
+        self.storage = [None] * self.capacity
+
+        cur_entry = None
+        old_count = self.item_count
+
+        for bucket_item in old_storage:
+            cur_entry = bucket_item
+            while cur_entry is not None:
+                self.put(cur_entry.key, cur_entry.value)
+                cur_entry = cur_entry.next
+
+        self.item_count = old_count
 
 
 if __name__ == "__main__":
