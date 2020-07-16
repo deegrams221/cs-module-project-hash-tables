@@ -51,7 +51,7 @@ def tiny_recurse(n):
     return n + tiny_recurse(n - 1)
 
 
-# # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # lookup_tables
 lookup_table = {}
 
@@ -74,7 +74,7 @@ print(lookup_table[932])
 # lazily computing
 
 
-# # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # sorting
 # Is order in a hash table guaranteed?
 my_list = []
@@ -126,7 +126,7 @@ dict_list.sort(key=lambda pair: pair[1])
 dict_list.sort(key=lambda pair: pair[1], reverse=True)
 
 
-# # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # letter_count
 # write a function that takes a string
 # and return each letter, along with how many times it occurs in the string
